@@ -8,7 +8,7 @@ YAML_PATH = os.path.join(BASE_DIR, "projectscan.yaml")
 
 
 BASE_DIR2 = os.path.dirname(os.path.abspath(__file__))
-PGM_PATH = os.path.join(BASE2_DIR, "projectscan.pgm")
+PGM_PATH = os.path.join(BASE_DIR2, "projectscan.pgm")
 
 
 meta = {
