@@ -1,9 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import os
 
-PGM_PATH = "projectscan.pgm"
-YAML_PATH = "projectscan.yaml"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+YAML_PATH = os.path.join(BASE_DIR, "projectscan.yaml")
+
+
+BASE_DIR2 = os.path.dirname(os.path.abspath(__file__))
+PGM_PATH = os.path.join(BASE2_DIR, "projectscan.pgm")
+
 
 meta = {
     "resolution": 0.05,
