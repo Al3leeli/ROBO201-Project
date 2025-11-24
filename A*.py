@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from queue import PriorityQueue
 import time
 
+explored=[]
+
 def plot_grid(grid, start_node, goal_node, path):
     fig, ax = plt.subplots(figsize=(10, 10))
 
@@ -66,49 +68,48 @@ def Astar(start_node, goal_node, grid):
 
     closed_list = set()
     parents = {start_node: None}
-    cost_from_start_node = {start_node: 0}  
+    cost_from_start_node = {start_node: 0}
+
+    explored = []
 
     while not open_list.empty():
-        priority_cost, current_node = open_list.get()  
+        priority_cost, current_node = open_list.get()
+        explored.append(current_node)
 
-        # if goal is the current node
         if current_node == goal_node:
             break
 
-        # if the node is already visited
         if current_node in closed_list:
             continue
         else:
-            closed_list.add(current_node)  # is being visited
+            closed_list.add(current_node)
 
         current_cost = cost_from_start_node[current_node]
 
         for next_node in neighbours(current_node):
             if is_valid_node(next_node, grid) and next_node not in closed_list:
-                new_cost = current_cost + 1  
+                new_cost = current_cost + 1
                 if next_node not in cost_from_start_node or new_cost < cost_from_start_node[next_node]:
                     cost_from_start_node[next_node] = new_cost
                     parents[next_node] = current_node
-                    priority_cost = new_cost + heuristic(next_node, goal_node)  # f = g' + h
-                    open_list.put((priority_cost, next_node))                  # push f, node
+                    priority_cost = new_cost + heuristic(next_node, goal_node)
+                    open_list.put((priority_cost, next_node))
 
-    # Constructing the Path 
     path = []
     current_node = goal_node
 
-    # no path if goal never reached
     if current_node not in parents:
-        return path
+        return path, explored
 
     while current_node != start_node:
         path.append(current_node)
         current_node = parents.get(current_node)
-        if current_node is None:  
-            return []
+        if current_node is None:
+            return [], explored
 
     path.append(start_node)
     path.reverse()
-    return path
+    return path, explored
 
 
 if __name__ == "__main__":
@@ -122,14 +123,14 @@ if __name__ == "__main__":
 
     # Run A* algorithm and recording it
     start_time=time.time()
-    path = Astar(start_node, goal_node, grid)
+    path, explored = Astar(start_node, goal_node, grid)
     end_time=time.time()
 
     print(f'A* Time: {end_time-start_time} seconds')
-    print("Shortest path:", path[::5]) # Shortening the path since it's long
+    print("Shortest path:", path[::]) # Shortening the path since it's long
+    print("Explored Nodes: ",explored[::])
     print("Path length:", len(path))
 
     # Plotting
     plot_grid(grid, start_node, goal_node, path)
 
-    
