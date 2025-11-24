@@ -6,10 +6,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 YAML_PATH = os.path.join(BASE_DIR, "projectscan.yaml")
 
-
 BASE_DIR2 = os.path.dirname(os.path.abspath(__file__))
 PGM_PATH = os.path.join(BASE_DIR2, "projectscan.pgm")
-
 
 meta = {
     "resolution": 0.05,
@@ -129,12 +127,45 @@ def block_small_enclosed_free(grid: np.ndarray, max_area: int) -> np.ndarray:
                         out[rr, cc] = 1
     return out
 
+# --- NEW FUNCTION (Pure NumPy inflation) ---
+def inflate_obstacles_numpy(grid: np.ndarray, robot_radius_m: float, resolution_m_per_px: float) -> np.ndarray:
+    """Inflate obstacles (1) into free cells (0) based on robot radius, using only NumPy."""
+    radius_px = int(np.ceil(robot_radius_m / resolution_m_per_px))
+    if radius_px <= 0:
+        return grid
+
+    h, w = grid.shape
+    out = grid.copy()
+
+    # Create circular mask offsets
+    yy, xx = np.mgrid[-radius_px:radius_px+1, -radius_px:radius_px+1]
+    mask = (xx**2 + yy**2) <= radius_px**2
+    dy, dx = np.nonzero(mask)
+    dy = dy - radius_px
+    dx = dx - radius_px
+
+    occ_r, occ_c = np.nonzero(grid == 1)
+    for r, c in zip(occ_r, occ_c):
+        rr = r + dy
+        cc = c + dx
+        valid = (rr >= 0) & (rr < h) & (cc >= 0) & (cc < w)
+        rr = rr[valid]
+        cc = cc[valid]
+        sel = (out[rr, cc] == 0)
+        out[rr[sel], cc[sel]] = 1
+    return out
+# ---------------------------------------------
+
 def main(max_hole_area: int = 60, pgm_path: str = PGM_PATH, yaml_path: str = YAML_PATH) -> None:
     _parse_yaml_if_present(yaml_path)
     gray = read_p5_pgm_numpy(pgm_path)
     grid = make_occupancy_grid(gray, meta["negate"], meta["occupied_thresh"], meta["free_thresh"])
     grid = mark_outside_grey(grid)
     grid = block_small_enclosed_free(grid, max_hole_area)
+
+    # Inflate obstacles based on robot radius
+    robot_radius_m = 0.20  # 20 cm radius
+    grid = inflate_obstacles_numpy(grid, robot_radius_m, meta["resolution"])
 
     np.save("occupancy_grid_numpy.npy", grid)
     np.savetxt("occupancy_grid_numpy.csv", grid, fmt="%d", delimiter=",")
@@ -152,7 +183,7 @@ def main(max_hole_area: int = 60, pgm_path: str = PGM_PATH, yaml_path: str = YAM
 
     plt.figure(figsize=(8, 8))
     plt.imshow(display_grid, origin="upper")
-    plt.title("Occupancy Grid")
+    plt.title("Occupancy Grid (Inflated)")
     plt.axis("off")
     plt.tight_layout()
 
