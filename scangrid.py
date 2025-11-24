@@ -127,7 +127,7 @@ def block_small_enclosed_free(grid: np.ndarray, max_area: int) -> np.ndarray:
                         out[rr, cc] = 1
     return out
 
-# --- NEW FUNCTION (Pure NumPy inflation) ---
+
 def inflate_obstacles_numpy(grid: np.ndarray, robot_radius_m: float, resolution_m_per_px: float) -> np.ndarray:
     """Inflate obstacles (1) into free cells (0) based on robot radius, using only NumPy."""
     radius_px = int(np.ceil(robot_radius_m / resolution_m_per_px))
