@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     print(f'A* Time: {end_time-start_time} seconds')
     print("Shortest path:", path[::]) # Shortening the path since it's long
-    print("Explored Nodes: ",explored[::])
+    print("Explored Nodes: ",len(explored))
     print("Path length:", len(path))
 
     # Plotting
