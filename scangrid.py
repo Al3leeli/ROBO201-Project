@@ -164,7 +164,7 @@ def main(max_hole_area: int = 60, pgm_path: str = PGM_PATH, yaml_path: str = YAM
     grid = block_small_enclosed_free(grid, max_hole_area)
 
     # Inflate obstacles based on robot radius
-    robot_radius_m = 0.20  # 20 cm radius
+    robot_radius_m = 0.04  # 4 cm radius
     grid = inflate_obstacles_numpy(grid, robot_radius_m, meta["resolution"])
 
     np.save("occupancy_grid_numpy.npy", grid)
